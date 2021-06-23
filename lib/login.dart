@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_auth_ui/API/fetch.dart';
+import 'package:flutter_auth_ui/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,7 +16,8 @@ class _LoginPageState extends State<LoginPage> {
   String _password = '';
 
   var _authModel;
-  bool loading = true;
+
+  bool errors = false;
 
   @override
   void dispose() {
@@ -36,16 +38,21 @@ class _LoginPageState extends State<LoginPage> {
 
     if (_username != '' && _password != '') {
       getUser(_username, _password);
+    } else {
+      setState(() {
+        errors = true;
+      });
     }
   }
 
   Future<void> getUser(String username, String password) async {
     try {
       _authModel = await FetchApi.getData(username, password);
-    } catch (Exception) {}
-    setState(() {
-      loading = false;
-    });
+    } catch (Exception) {
+      setState(() {
+        errors = true;
+      });
+    }
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -55,8 +62,15 @@ class _LoginPageState extends State<LoginPage> {
       prefs.setString('email', _authModel.email);
       prefs.setString('password', _authModel.password);
 
-      Navigator.pushNamed(context, '/');
-    } catch (Exception) {}
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MyApp()),
+      );
+    } catch (Exception) {
+      setState(() {
+        errors = true;
+      });
+    }
   }
 
   @override
@@ -68,6 +82,16 @@ class _LoginPageState extends State<LoginPage> {
       body: Container(
           child: Column(
         children: [
+          !errors
+              ? Text('')
+              : Text(
+                  'You have an error in your username or password',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
           TextField(
               controller: controllerUserName,
               decoration: InputDecoration(

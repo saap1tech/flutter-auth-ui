@@ -1,11 +1,6 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter_auth_ui/index.dart';
 import 'package:flutter_auth_ui/login.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_ui/API/fetch.dart';
-import 'package:flutter_auth_ui/API/authmodel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -18,16 +13,17 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var prefs;
   int id = 0;
 
   @override
   void initState() {
     super.initState();
+
+    pref();
   }
 
   void pref() async {
-    prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
 
     setState(() {
       id = prefs.getInt('id') ?? 0;
@@ -50,57 +46,7 @@ class _MyAppState extends State<MyApp> {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      //home: id > 0 ? IndexPage() : LoginPage(),
-      initialRoute: id > 0 ? '/' : '/login',
-      routes: {
-        '/': (context) => IndexPage(),
-        '/login': (context) => LoginPage(),
-      },
+      home: id > 0 ? IndexPage() : LoginPage(),
     );
   }
 }
-/*
-class IndexPage extends StatefulWidget {
-
-  @override
-  _IndexPageState createState() => _IndexPageState();
-}
-
-class _IndexPageState extends State<IndexPage> {
-  var _authModel;
-  bool loading = true;
-
-  var prefs;
-
-  @override
-  void initState() {
-    super.initState();
-    getM();
-  }
-
-  Future<void> getM() async {
-    _authModel = await FetchApi.getD();
-    setState(() {
-      loading = false;
-    });
-
-    prefs = await SharedPreferences.getInstance();
-
-    prefs.setInt('id', _authModel.id);
-    prefs.setString('username', _authModel.username);
-    prefs.setString('email', _authModel.email);
-    prefs.setString('password', _authModel.password);
-
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        backgroundColor: Colors.deepOrange,
-      ),
-      body: loading ? Text('No user') : Text('Hello ${_authModel.username}'),
-    );
-  }
-}*/
